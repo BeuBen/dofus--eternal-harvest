@@ -1,8 +1,12 @@
-package com.beuben.dofuseternalharvest.config;
+package com.beuben.dofuseternalharvest.configs;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Getter
+@Setter
 @Configuration
 @ConfigurationProperties(prefix = "metamob.api")
 public class MetamobPropertiesConfig {
@@ -22,27 +26,4 @@ public class MetamobPropertiesConfig {
    */
   private String user;
 
-  public String getKey() {
-    return key;
-  }
-
-  public void setKey(String key) {
-    this.key = key;
-  }
-
-  public String getHost() {
-    return host;
-  }
-
-  public void setHost(String host) {
-    this.host = host;
-  }
-
-  public String getUser() {
-    return user;
-  }
-
-  public void setUser(String user) {
-    this.user = user;
-  }
 }

@@ -1,10 +1,8 @@
 package com.beuben.dofuseternalharvest.clients;
 
-import com.beuben.dofuseternalharvest.dto.UserDto;
-import org.apache.catalina.User;
+import com.beuben.dofuseternalharvest.dtos.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 

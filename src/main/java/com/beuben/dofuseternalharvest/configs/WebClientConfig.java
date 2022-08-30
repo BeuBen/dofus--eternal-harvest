@@ -1,4 +1,4 @@
-package com.beuben.dofuseternalharvest.config;
+package com.beuben.dofuseternalharvest.configs;
 
 import com.beuben.dofuseternalharvest.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;

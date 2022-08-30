@@ -1,7 +1,6 @@
 package com.beuben.dofuseternalharvest.controllers;
 
-import com.beuben.dofuseternalharvest.clients.MetamobClient;
-import com.beuben.dofuseternalharvest.config.MetamobPropertiesConfig;
+import com.beuben.dofuseternalharvest.services.MetamobService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,23 +14,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/eternal_harvest_manager")
 public class DofusEternalHarvestController {
 
-  private final MetamobClient metamobClient;
+  private final MetamobService metamobService;
 
   @Autowired
   public DofusEternalHarvestController(
-      MetamobClient metamobClient
+      MetamobService metamobService
   ) {
-    this.metamobClient = metamobClient;
+    this.metamobService = metamobService;
   }
 
-  @GetMapping(value = "/home")
+  @GetMapping("/home")
   public String home() {
     return "home";
   }
 
   @GetMapping("/user")
   public String getMetamobApiKey(@RequestParam("username") String username, ModelMap model) {
-    var user = metamobClient.getUser(username);
+    var user = metamobService.getUser(username);
     model.addAttribute("user", user);
     return "user";
   }
