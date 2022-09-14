@@ -17,6 +17,6 @@ public interface UserMapper {
   // TODO problème avec la date qui n'est pas bien mappée
   @Mapping(target = "lastConnection", source = "derniere_connexion", dateFormat = "dd-MM-yyyy HH:mm:ss")
   @Mapping(target = "link", source = "lien")
-  User userDtoToUser(UserDto userDto);
+  User toUser(UserDto userDto);
 
 }
