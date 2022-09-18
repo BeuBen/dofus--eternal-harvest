@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dofus Eternal Harvest Manager - Delete Souls</title>
+</head>
+<body>
+  <form method="post" action="/soulstone_reading/delete_souls"  enctype="multipart/form-data">
+    <input type="file" name="soulstoneScreenshot" value="Soulstone screenshot (png)"/>
+    <input type="submit" value="Submit"/>
+  </form>
+  <br><br>
+  <form method="get" action="/soulstone_reading">
+    <input type="submit" value="Back"/>
+  </form>
+  <br>
+  <div th:include="footer.html"></div>
+</body>
+</html>

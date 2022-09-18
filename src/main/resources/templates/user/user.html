@@ -12,5 +12,11 @@
   <span th:text="${user.getServer()}"></span>
   <br>
   <span th:text="${user.getLastConnection()}"></span>
+  <br><br>
+  <form method="get" action="/user">
+    <input type="submit" value="Back"/>
+  </form>
+  <br>
+  <div th:include="footer.html"></div>
 </body>
 </html>

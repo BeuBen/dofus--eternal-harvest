@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dofus Eternal Harvest Manager - Monsters</title>
+</head>
+<body>
+  <ul th:each="monster : ${monsters}">
+    <li th:utext="${monster.getId()}"></li>
+    <li th:utext="${monster.getName()}"></li>
+    <li th:utext="${monster.getQuantity()}"></li>
+  </ul>
+  <br><br>
+  <form method="get" action="/monsters">
+    <input type="submit" value="Back"/>
+  </form>
+  <br>
+  <div th:include="footer.html"></div>
+</body>
+</html>

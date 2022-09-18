@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Dofus Eternal Harvest Manager - Home</title>
+  <meta charset="UTF-8">
+  <title>Dofus Eternal Harvest Manager - Home</title>
 </head>
 <body>
-    <span>Home</span>
-    <form method="get" action="/eternal_harvest_manager/user">
-        <input type="text" name="username" placeholder="Username">
-        <input type="submit" value="Submit">
-    </form>
+  <form method="get" action="/user">
+    <input type="submit" value="User Information">
+  </form>
+  <br><br>
+  <form method="get" action="/monsters">
+    <input type="submit" value="User List Of Monsters">
+  </form>
+  <br><br>
+  <form method="get" action="/soulstone_reading">
+    <input type="submit" value="Soulstone Reading">
+  </form>
 </body>
 </html>
