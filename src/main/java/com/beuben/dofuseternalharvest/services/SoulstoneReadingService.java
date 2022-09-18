@@ -7,6 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Service
 public class SoulstoneReadingService {
@@ -14,9 +16,9 @@ public class SoulstoneReadingService {
   public SoulstoneReadingService() {
   }
 
-  public String updateSoulsFromScreenshots(MultipartFile multipartFile, Boolean add) {
+  public String updateSoulsFromScreenshots(MultipartFile multipartFile, Boolean add) throws IOException {
 
-    var file = convertMultipartToFile(multipartFile, add);
+    var file = convertMultipartToFile(multipartFile);
     var tesseract = setupTesseract();
     var text = "";
 
@@ -26,7 +28,11 @@ public class SoulstoneReadingService {
       System.out.println(tesseractException.getMessage());
     }
 
+    //TODO clean temp folder after
+
     //TODO parse text + update call on metamob API
+
+    //TODO before update call, call monsters to setup difference
 
     return text;
   }
@@ -40,19 +46,21 @@ public class SoulstoneReadingService {
     return tesseract;
   }
 
-  public File convertMultipartToFile(MultipartFile multipartFile, Boolean add) {
+  public File convertMultipartToFile(MultipartFile multipartFile) throws IOException {
 
-    //TODO set local path dynamically + use temp folder + clean temp folder after
+    var tmpPath = Paths.get("src/main/resources/static/tmp");
+    if (!Files.exists(tmpPath)) {
+      Files.createDirectory(tmpPath);
+    }
 
     var localPath = String.join("",
-        "D:\\DevProjects\\dofus--eternal-harvest\\src\\main\\resources\\static\\",
-        add ? "add/" : "delete/",
+        "src/main/resources/static/tmp/",
         multipartFile.getOriginalFilename());
 
     var file = new File(localPath);
 
     try {
-      multipartFile.transferTo(file);
+      multipartFile.transferTo(file.getAbsoluteFile());
     } catch (IOException ioException) {
       System.out.println(ioException.getMessage());
     }

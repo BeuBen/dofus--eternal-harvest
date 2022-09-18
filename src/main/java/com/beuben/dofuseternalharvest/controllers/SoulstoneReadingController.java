@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Slf4j
 @Controller
 @RequestMapping("/soulstone_reading")
@@ -42,18 +44,27 @@ public class SoulstoneReadingController {
   public String addMonstersFromScreenshots(
       @RequestParam("soulstoneScreenshot") MultipartFile soulstoneScreenshot,
       ModelMap model) {
-
-    var souls = soulstoneReadingService.updateSoulsFromScreenshots(soulstoneScreenshot, true);
-
-    model.put("souls", souls);
-    return "soulstoneReading/soulstoneReadingResult";
+    try {
+      var souls = soulstoneReadingService.updateSoulsFromScreenshots(soulstoneScreenshot, true);
+      model.put("souls", souls);
+      return "soulstoneReading/soulstoneReadingResult";
+    } catch (IOException ioException) {
+      //TODO return an error html view showing the error
+      return "";
+    }
   }
 
   @PostMapping("/delete_souls")
   public String deleteMonstersFromScreenshots(
       @RequestParam("soulstoneScreenshot") MultipartFile soulstoneScreenshot,
       ModelMap model) {
-    model.put("file", soulstoneScreenshot);
-    return "soulstoneReading/soulstoneReadingResult";
+    try {
+      var souls = soulstoneReadingService.updateSoulsFromScreenshots(soulstoneScreenshot, false);
+      model.put("souls", souls);
+      return "soulstoneReading/soulstoneReadingResult";
+    } catch (IOException ioException) {
+      //TODO return an error html view showing the error
+      return "";
+    }
   }
 }
