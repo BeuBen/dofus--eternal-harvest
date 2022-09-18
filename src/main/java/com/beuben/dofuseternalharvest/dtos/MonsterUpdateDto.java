@@ -10,5 +10,6 @@ import lombok.*;
 public class MonsterUpdateDto {
   public Integer id;
   public String etat;
-  public Integer quantite;
+  //+X or -X
+  public String quantite;
 }

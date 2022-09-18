@@ -15,10 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.Collator;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,14 +57,10 @@ public class SoulstoneReadingService {
         newMonstersAndQuantities
             .entrySet()
             .stream()
-            .map(entry -> buildMonsterUpdateDto(entry, currentMonsters))
+            .map(entry -> buildMonsterUpdateDto(entry, currentMonsters, add))
             .toList();
 
-
-    //TODO gérer les changements de quantité et les états (recherche/propose)
-
-
-    //TODO update call on metamob API
+    //TODO call on metamob API
 
     //Clear tmp folder
     var tmpFolder = new File(Constants.TMP_PATH);
@@ -141,7 +134,9 @@ public class SoulstoneReadingService {
         .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
   }
 
-  public MonsterUpdateDto buildMonsterUpdateDto(Map.Entry<String, Long> entry, List<Monster> currentMonsters) {
+  public MonsterUpdateDto buildMonsterUpdateDto(Map.Entry<String, Long> entry, List<Monster> currentMonsters, Boolean add) {
+    //Get monster id in metamob
+    //TODO encore une couille avec la liste post filter qui est vide
     var monsterId =
         currentMonsters
             .stream()
@@ -153,6 +148,34 @@ public class SoulstoneReadingService {
             .toList()
             .get(0)
             .getId();
-    return new MonsterUpdateDto().withId(monsterId).withQuantite(Math.toIntExact(entry.getValue()));
+
+    var currentQuantity = getCurrentQuantityById(monsterId, currentMonsters);
+    var state = resolveState(currentQuantity, Math.toIntExact(entry.getValue()));
+
+    return new MonsterUpdateDto()
+        .withId(monsterId)
+        .withQuantite(add ?
+            String.join("", "+", String.valueOf(entry.getValue()))
+            : String.valueOf(entry.getValue()))
+        .withEtat(state);
+  }
+
+  public Integer getCurrentQuantityById(Integer id, List<Monster> currentMonsters) {
+    return currentMonsters.stream()
+        .filter(currentMonster -> Objects.equals(currentMonster.getId(), id))
+        .toList()
+        .get(0)
+        .getQuantity();
+  }
+
+  public String resolveState(Integer currentQuantity, Integer newQuantity) {
+    var delta = currentQuantity + newQuantity;
+    if (delta == 0 ) {
+      return "recherche";
+    } else if (delta > 1) {
+      return "propose";
+    } else {
+      return "aucun";
+    }
   }
 }
