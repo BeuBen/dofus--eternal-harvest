@@ -18,8 +18,15 @@ public class MonstersService {
     this.monstersClient = monstersClient;
   }
 
-  public List<Monster> getMonsters(final String username) {
-    var monstersDto = monstersClient.getMonsters(username);
+  public List<Monster> getMonsters() {
+    var monstersDto = monstersClient.getMonsters();
+    return monstersDto.stream()
+        .map(MonsterMapper.INSTANCE::toMonster)
+        .toList();
+  }
+
+  public List<Monster> getUserMonsters(final String username) {
+    var monstersDto = monstersClient.getUserMonsters(username);
     return monstersDto.stream()
         .map(MonsterMapper.INSTANCE::toMonster)
         .toList();

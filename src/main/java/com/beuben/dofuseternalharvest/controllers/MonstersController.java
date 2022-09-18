@@ -30,7 +30,7 @@ public class MonstersController {
 
   @GetMapping("/list")
   public String getMonsters(@RequestParam("username") String username, ModelMap model) {
-    var monsters = monstersService.getMonsters(username);
+    var monsters = monstersService.getUserMonsters(username);
     model.addAttribute("monsters", monsters);
     return "monsters/monsters";
   }

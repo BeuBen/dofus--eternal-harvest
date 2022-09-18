@@ -20,7 +20,16 @@ public class MonstersClient {
     this.metamobReadClient = metamobReadClient;
   }
 
-  public List<MonsterDto> getMonsters(String username) {
+  public List<MonsterDto> getMonsters() {
+    return metamobReadClient
+        .get().uri(uriBuilder -> uriBuilder.path("/monstres").build())
+        .retrieve()
+        .bodyToFlux(MonsterDto.class)
+        .collectList()
+        .block();
+  }
+
+  public List<MonsterDto> getUserMonsters(String username) {
     return metamobReadClient
         .get()
         .uri(uriBuilder -> uriBuilder.path("/utilisateurs/" + username + "/monstres").build())
