@@ -22,7 +22,8 @@ public class MonstersClient {
 
   public List<MonsterDto> getMonsters() {
     return metamobReadClient
-        .get().uri(uriBuilder -> uriBuilder.path("/monstres").build())
+        .get()
+        .uri(uriBuilder -> uriBuilder.path("/monstres").build())
         .retrieve()
         .bodyToFlux(MonsterDto.class)
         .collectList()

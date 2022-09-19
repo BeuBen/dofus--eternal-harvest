@@ -1,5 +1,6 @@
 package com.beuben.dofuseternalharvest.services;
 
+import com.beuben.dofuseternalharvest.clients.SoulstoneReadingClient;
 import com.beuben.dofuseternalharvest.dtos.MonsterUpdateDto;
 import com.beuben.dofuseternalharvest.models.Monster;
 import com.beuben.dofuseternalharvest.utils.Constants;
@@ -23,12 +24,17 @@ public class SoulstoneReadingService {
 
   private final MonstersService monstersService;
 
+  private final SoulstoneReadingClient soulstoneReadingClient;
+
   @Autowired
-  public SoulstoneReadingService(MonstersService monstersService) {
+  public SoulstoneReadingService(MonstersService monstersService, SoulstoneReadingClient soulstoneReadingClient) {
     this.monstersService = monstersService;
+    this.soulstoneReadingClient = soulstoneReadingClient;
   }
 
   public List<MonsterUpdateDto> updateSoulsFromScreenshots(MultipartFile[] multipartFiles, Boolean add) throws IOException {
+
+    //TODO problème avec les kwakeres qui ne sont pas dans la quète ocre
 
     var monsterUpdateDTOs = new ArrayList<MonsterUpdateDto>(Collections.emptyList());
 
@@ -49,7 +55,10 @@ public class SoulstoneReadingService {
             }
         );
 
-    //TODO call on metamob API with monsterUpdateDTOs as param
+    //Call to Metamob API to update the monsters
+    var response = soulstoneReadingClient.putMonsters("Brux", monsterUpdateDTOs);
+
+    System.out.println(response);
 
     //Clear tmp folder
     var tmpFolder = new File(Constants.TMP_PATH);
@@ -199,7 +208,7 @@ public class SoulstoneReadingService {
 
   public String resolveState(Integer currentQuantity, Integer newQuantity) {
     var delta = currentQuantity + newQuantity;
-    if (delta == 0 ) {
+    if (delta == 0) {
       return "recherche";
     } else if (delta > 1) {
       return "propose";
