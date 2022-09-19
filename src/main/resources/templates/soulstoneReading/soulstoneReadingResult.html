@@ -5,7 +5,11 @@
   <title>Dofus Eternal Harvest Manager - Soulstone Screenshots Reading Result</title>
 </head>
 <body>
-  <span th:text="${souls}"></span>
+  <ul th:each="soul : ${souls}">
+    <li th:utext="${soul.getId()}"></li>
+    <li th:utext="${soul.getEtat()}"></li>
+    <li th:utext="${soul.getQuantite()}"></li>
+  </ul>
   <br><br>
   <form method="get" action="/soulstone_reading">
     <input type="submit" value="Back"/>

@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.Collator;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,39 +28,28 @@ public class SoulstoneReadingService {
     this.monstersService = monstersService;
   }
 
-  public String updateSoulsFromScreenshots(MultipartFile multipartFile, Boolean add) throws IOException {
+  public List<MonsterUpdateDto> updateSoulsFromScreenshots(MultipartFile[] multipartFiles, Boolean add) throws IOException {
 
-    //Read content of the screenshot
-    var file = convertMultipartToFile(multipartFile);
+    var monsterUpdateDTOs = new ArrayList<MonsterUpdateDto>(Collections.emptyList());
+
     var tesseract = setupTesseract();
-    var text = "";
-
-    try {
-      text = tesseract.doOCR(file);
-    } catch (TesseractException tesseractException) {
-      System.out.println(tesseractException.getMessage());
-    }
 
     //Get current monsters for user
     //TODO parametrize username
     var currentMonsters = monstersService.getUserMonsters("Brux");
 
-    //Parse and prepare list of new monsters
-    var newMonstersAndQuantities = getMonstersNameAndQuantitiesFromText(text);
+    //Generate list of MonsterUpdateDto for each file
+    Arrays.stream(multipartFiles)
+        .forEach(multipartFile -> {
+              try {
+                monsterUpdateDTOs.addAll(generateMonsterUpdateDTOs(multipartFile, tesseract, add, currentMonsters));
+              } catch (IOException e) {
+                System.out.println(e.getMessage());
+              }
+            }
+        );
 
-    //Adapt quantities if add or delete
-    newMonstersAndQuantities.replaceAll((monsterName, quantity) -> add ? quantity : quantity * -1);
-
-    //Create MonsterUpdateDto objects to call Metamob API
-    //The Collator allows to bypass the break related to the bad detection of accents
-    var monstersUpdateDTOs =
-        newMonstersAndQuantities
-            .entrySet()
-            .stream()
-            .map(entry -> buildMonsterUpdateDto(entry, currentMonsters, add))
-            .toList();
-
-    //TODO call on metamob API
+    //TODO call on metamob API with monsterUpdateDTOs as param
 
     //Clear tmp folder
     var tmpFolder = new File(Constants.TMP_PATH);
@@ -71,7 +59,7 @@ public class SoulstoneReadingService {
             .forEach(this::deleteTmpFileWrapped)
     );
 
-    return text;
+    return monsterUpdateDTOs;
   }
 
   public Tesseract setupTesseract() {
@@ -81,6 +69,36 @@ public class SoulstoneReadingService {
     tesseract.setPageSegMode(1);
     tesseract.setOcrEngineMode(1);
     return tesseract;
+  }
+
+  public List<MonsterUpdateDto> generateMonsterUpdateDTOs(
+      MultipartFile multipartFile,
+      Tesseract tesseract,
+      Boolean add,
+      List<Monster> currentMonsters) throws IOException {
+
+    var file = convertMultipartToFile(multipartFile);
+
+    var text = "";
+
+    try {
+      text = tesseract.doOCR(file);
+    } catch (TesseractException tesseractException) {
+      System.out.println(tesseractException.getMessage());
+    }
+
+    //Parse and prepare list of new monsters
+    var newMonstersAndQuantities = getMonstersNameAndQuantitiesFromText(text);
+
+    //Adapt quantities if add or delete
+    newMonstersAndQuantities.replaceAll((monsterName, quantity) -> add ? quantity : quantity * -1);
+
+    //Create MonsterUpdateDto objects to call Metamob API
+    return newMonstersAndQuantities
+        .entrySet()
+        .stream()
+        .map(entry -> buildMonsterUpdateDto(entry, currentMonsters, add))
+        .toList();
   }
 
   public File convertMultipartToFile(MultipartFile multipartFile) throws IOException {
@@ -135,8 +153,12 @@ public class SoulstoneReadingService {
         .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
   }
 
-  public MonsterUpdateDto buildMonsterUpdateDto(Map.Entry<String, Long> entry, List<Monster> currentMonsters, Boolean add) {
+  public MonsterUpdateDto buildMonsterUpdateDto(
+      Map.Entry<String, Long> entry,
+      List<Monster> currentMonsters,
+      Boolean add) {
 
+    //Weighted strategy to compare monster names
     var strategy = new WeightedLevenshtein((c, c1) -> {
       if (c == 'l' && c1 == Character.MIN_VALUE) {
         return 0.1;
@@ -150,12 +172,13 @@ public class SoulstoneReadingService {
             .stream()
             .filter(currentMonster ->
                 //Name comparison to get id
-                strategy.distance(currentMonster.getName(), entry.getKey()) > Constants.SIMILARITY_MIN_DISTANCE)
+                strategy.distance(currentMonster.getName(), entry.getKey()) < Constants.SIMILARITY_MIN_DISTANCE)
             .toList()
             .get(0)
             .getId();
 
     var currentQuantity = getCurrentQuantityById(monsterId, currentMonsters);
+
     var state = resolveState(currentQuantity, Math.toIntExact(entry.getValue()));
 
     return new MonsterUpdateDto()

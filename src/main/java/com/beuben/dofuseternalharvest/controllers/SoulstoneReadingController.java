@@ -42,10 +42,10 @@ public class SoulstoneReadingController {
 
   @PostMapping("/add_souls")
   public String addMonstersFromScreenshots(
-      @RequestParam("soulstoneScreenshot") MultipartFile soulstoneScreenshot,
+      @RequestParam("soulstoneScreenshot") MultipartFile[] soulstoneScreenshots,
       ModelMap model) {
     try {
-      var souls = soulstoneReadingService.updateSoulsFromScreenshots(soulstoneScreenshot, true);
+      var souls = soulstoneReadingService.updateSoulsFromScreenshots(soulstoneScreenshots, true);
       model.put("souls", souls);
       return "soulstoneReading/soulstoneReadingResult";
     } catch (IOException ioException) {
@@ -56,10 +56,10 @@ public class SoulstoneReadingController {
 
   @PostMapping("/delete_souls")
   public String deleteMonstersFromScreenshots(
-      @RequestParam("soulstoneScreenshot") MultipartFile soulstoneScreenshot,
+      @RequestParam("soulstoneScreenshot") MultipartFile[] soulstoneScreenshots,
       ModelMap model) {
     try {
-      var souls = soulstoneReadingService.updateSoulsFromScreenshots(soulstoneScreenshot, false);
+      var souls = soulstoneReadingService.updateSoulsFromScreenshots(soulstoneScreenshots, false);
       model.put("souls", souls);
       return "soulstoneReading/soulstoneReadingResult";
     } catch (IOException ioException) {
