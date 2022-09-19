@@ -9,4 +9,5 @@ public class Constants {
   //SOULSTONE READING
   public static final String TMP_PATH = "src/main/resources/static/tmp";
   public static final String TESSDATA_PATH = "src/main/resources/tessdata";
+  public static final Integer SIMILARITY_MIN_DISTANCE = 3;
 }

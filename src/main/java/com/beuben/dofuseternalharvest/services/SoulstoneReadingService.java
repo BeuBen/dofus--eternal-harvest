@@ -3,6 +3,7 @@ package com.beuben.dofuseternalharvest.services;
 import com.beuben.dofuseternalharvest.dtos.MonsterUpdateDto;
 import com.beuben.dofuseternalharvest.models.Monster;
 import com.beuben.dofuseternalharvest.utils.Constants;
+import info.debatty.java.stringsimilarity.WeightedLevenshtein;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.io.FileUtils;
@@ -135,16 +136,21 @@ public class SoulstoneReadingService {
   }
 
   public MonsterUpdateDto buildMonsterUpdateDto(Map.Entry<String, Long> entry, List<Monster> currentMonsters, Boolean add) {
+
+    var strategy = new WeightedLevenshtein((c, c1) -> {
+      if (c == 'l' && c1 == Character.MIN_VALUE) {
+        return 0.1;
+      }
+      return 1.0;
+    });
+
     //Get monster id in metamob
-    //TODO encore une couille avec la liste post filter qui est vide
     var monsterId =
         currentMonsters
             .stream()
-            .filter(currentMonster -> {
-              var collator = Collator.getInstance();
-              collator.setStrength(Collator.PRIMARY);
-              return collator.compare(currentMonster.getName(), entry.getKey()) == 0;
-            })
+            .filter(currentMonster ->
+                //Name comparison to get id
+                strategy.distance(currentMonster.getName(), entry.getKey()) > Constants.SIMILARITY_MIN_DISTANCE)
             .toList()
             .get(0)
             .getId();
