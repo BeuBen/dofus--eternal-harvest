@@ -34,8 +34,6 @@ public class SoulstoneReadingService {
 
   public List<MonsterUpdateDto> updateSoulsFromScreenshots(MultipartFile[] multipartFiles, Boolean add) throws IOException {
 
-    //TODO problème avec les kwakeres qui ne sont pas dans la quète ocre
-
     var monsterUpdateDTOs = new ArrayList<MonsterUpdateDto>(Collections.emptyList());
 
     var tesseract = setupTesseract();
@@ -56,6 +54,7 @@ public class SoulstoneReadingService {
         );
 
     //Call to Metamob API to update the monsters
+    //TODO parametrize username
     var response = soulstoneReadingClient.putMonsters("Brux", monsterUpdateDTOs);
 
     System.out.println(response);
@@ -99,6 +98,8 @@ public class SoulstoneReadingService {
     //Parse and prepare list of new monsters
     var newMonstersAndQuantities = getMonstersNameAndQuantitiesFromText(text);
 
+    removeMonstersNotInQuest(newMonstersAndQuantities);
+
     //Adapt quantities if add or delete
     newMonstersAndQuantities.replaceAll((monsterName, quantity) -> add ? quantity : quantity * -1);
 
@@ -107,6 +108,7 @@ public class SoulstoneReadingService {
         .entrySet()
         .stream()
         .map(entry -> buildMonsterUpdateDto(entry, currentMonsters, add))
+        .filter(Objects::nonNull)
         .toList();
   }
 
@@ -162,6 +164,12 @@ public class SoulstoneReadingService {
         .collect(Collectors.groupingBy(e -> e, Collectors.counting()));
   }
 
+  public void removeMonstersNotInQuest(Map<String, Long> monstersMap) {
+    monstersMap
+        .keySet()
+        .removeIf(Constants.MONSTERS_NOT_IN_QUEST::contains);
+  }
+
   public MonsterUpdateDto buildMonsterUpdateDto(
       Map.Entry<String, Long> entry,
       List<Monster> currentMonsters,
@@ -177,25 +185,29 @@ public class SoulstoneReadingService {
 
     //Get monster id in metamob
     var monsterId =
-        currentMonsters
+        Optional.ofNullable(currentMonsters
             .stream()
             .filter(currentMonster ->
                 //Name comparison to get id
                 strategy.distance(currentMonster.getName(), entry.getKey()) < Constants.SIMILARITY_MIN_DISTANCE)
             .toList()
             .get(0)
-            .getId();
+            .getId());
 
-    var currentQuantity = getCurrentQuantityById(monsterId, currentMonsters);
+    if (monsterId.isPresent()) {
+      var currentQuantity = getCurrentQuantityById(monsterId.get(), currentMonsters);
 
-    var state = resolveState(currentQuantity, Math.toIntExact(entry.getValue()));
+      var state = resolveState(currentQuantity, Math.toIntExact(entry.getValue()));
 
-    return new MonsterUpdateDto()
-        .withId(monsterId)
-        .withQuantite(add ?
-            String.join("", "+", String.valueOf(entry.getValue()))
-            : String.valueOf(entry.getValue()))
-        .withEtat(state);
+      return new MonsterUpdateDto()
+          .withId(monsterId.get())
+          .withQuantite(add ?
+              String.join("", "+", String.valueOf(entry.getValue()))
+              : String.valueOf(entry.getValue()))
+          .withEtat(state);
+    } else {
+      return null;
+    }
   }
 
   public Integer getCurrentQuantityById(Integer id, List<Monster> currentMonsters) {
