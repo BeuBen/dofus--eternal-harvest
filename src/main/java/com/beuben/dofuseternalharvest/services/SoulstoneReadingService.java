@@ -5,6 +5,7 @@ import com.beuben.dofuseternalharvest.dtos.MonsterUpdateDto;
 import com.beuben.dofuseternalharvest.models.Monster;
 import com.beuben.dofuseternalharvest.utils.Constants;
 import info.debatty.java.stringsimilarity.WeightedLevenshtein;
+import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.io.FileUtils;
@@ -19,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class SoulstoneReadingService {
 
@@ -48,7 +50,7 @@ public class SoulstoneReadingService {
               try {
                 monsterUpdateDTOs.addAll(generateMonsterUpdateDTOs(multipartFile, tesseract, add, currentMonsters));
               } catch (IOException e) {
-                System.out.println(e.getMessage());
+                log.error(e.getMessage());
               }
             }
         );
@@ -57,7 +59,7 @@ public class SoulstoneReadingService {
     //TODO parametrize username
     var response = soulstoneReadingClient.putMonsters("Brux", monsterUpdateDTOs);
 
-    System.out.println(response);
+    log.info(response.toString());
 
     //Clear tmp folder
     var tmpFolder = new File(Constants.TMP_PATH);
@@ -92,7 +94,7 @@ public class SoulstoneReadingService {
     try {
       text = tesseract.doOCR(file);
     } catch (TesseractException tesseractException) {
-      System.out.println(tesseractException.getMessage());
+      log.error(tesseractException.getMessage());
     }
 
     //Parse and prepare list of new monsters
@@ -129,7 +131,7 @@ public class SoulstoneReadingService {
     try {
       multipartFile.transferTo(file.getAbsoluteFile());
     } catch (IOException ioException) {
-      System.out.println(ioException.getMessage());
+      log.error(ioException.getMessage());
     }
 
     return file;
@@ -139,7 +141,7 @@ public class SoulstoneReadingService {
     try {
       FileUtils.delete(file);
     } catch (IOException ioException) {
-      System.out.println(ioException.getMessage());
+      log.error(ioException.getMessage());
     }
   }
 
