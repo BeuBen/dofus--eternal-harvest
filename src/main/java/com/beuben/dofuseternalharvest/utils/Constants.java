@@ -18,6 +18,9 @@ public class Constants {
           "Kwakere de Flamme",
           "Kwakere de Glace",
           "Kwakere de Terre",
-          "Kwakere de Vent"
+          "Kwakere de Vent",
+          "Craquelope",
+          "Guerrier Mental",
+          "Robot Fléau"
       );
 }
