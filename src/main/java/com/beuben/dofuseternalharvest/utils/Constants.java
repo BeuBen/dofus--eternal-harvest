@@ -13,6 +13,10 @@ public class Constants {
   public static final String TMP_PATH = "src/main/resources/static/tmp";
   public static final String TESSDATA_PATH = "src/main/resources/tessdata";
   public static final Integer SIMILARITY_MIN_DISTANCE = 3;
+  public static final String ARCHI_TYPE = "archimonstre";
+  public static final String STATE_NONE = "aucun";
+  public static final String STATE_LOOKING = "recherche";
+  public static final String STATE_PROPOSE = "propose";
   public static final List<String> MONSTERS_NOT_IN_QUEST =
       List.of(
           "Kwakere de Flamme",
@@ -21,6 +25,8 @@ public class Constants {
           "Kwakere de Vent",
           "Craquelope",
           "Guerrier Mental",
-          "Robot Fléau"
+          "Robot Fléau",
+          "Citwouille",
+          "Ricanif"
       );
 }

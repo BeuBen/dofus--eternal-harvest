@@ -197,9 +197,12 @@ public class SoulstoneReadingService {
             .getId());
 
     if (monsterId.isPresent()) {
+
       var currentQuantity = getCurrentQuantityById(monsterId.get(), currentMonsters);
 
-      var state = resolveState(currentQuantity, Math.toIntExact(entry.getValue()));
+      var isArchi = isArchi(monsterId.get(), currentMonsters);
+
+      var state = resolveState(currentQuantity, Math.toIntExact(entry.getValue()), isArchi);
 
       return new MonsterUpdateDto()
           .withId(monsterId.get())
@@ -220,14 +223,28 @@ public class SoulstoneReadingService {
         .getQuantity();
   }
 
-  public String resolveState(Integer currentQuantity, Integer newQuantity) {
+  public Boolean isArchi(Integer id, List<Monster> currentMonsters) {
+    return currentMonsters.stream()
+        .filter(currentMonster -> Objects.equals(currentMonster.getId(), id))
+        .toList()
+        .get(0)
+        .getType()
+        .equals(Constants.ARCHI_TYPE);
+  }
+
+  public String resolveState(Integer currentQuantity, Integer newQuantity, Boolean isArchi) {
+    if (!isArchi) {
+      return Constants.STATE_NONE;
+    }
+
     var delta = currentQuantity + newQuantity;
+
     if (delta == 0) {
-      return "recherche";
+      return Constants.STATE_LOOKING;
     } else if (delta > 1) {
-      return "propose";
+      return Constants.STATE_PROPOSE;
     } else {
-      return "aucun";
+      return Constants.STATE_NONE;
     }
   }
 }
